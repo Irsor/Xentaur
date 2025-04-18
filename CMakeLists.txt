@@ -39,6 +39,8 @@ FetchContent_MakeAvailable(glm)
 
 add_executable(${PROJECT_NAME} main.cpp
         src/Window.cpp
+        src/App.cpp
+        src/Core/VulkanCore.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE

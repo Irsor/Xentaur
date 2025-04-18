@@ -1,13 +1,9 @@
 #include <iostream>
 
-#include "Window.hpp"
+#include "App.hpp"
 
 int main() {
-    xe::Window window;
-
-    while (!glfwWindowShouldClose(window.get())) {
-        glfwPollEvents();
-    }
-
+    xe::App app("Xenia");
+    app.Run();
     return 0;
 }
