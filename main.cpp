@@ -1,6 +1,13 @@
 #include <iostream>
 
+#include "Window.hpp"
+
 int main() {
-    std::cout << "Hello, World!" << std::endl;
+    xe::Window window;
+
+    while (!glfwWindowShouldClose(window.get())) {
+        glfwPollEvents();
+    }
+
     return 0;
 }
