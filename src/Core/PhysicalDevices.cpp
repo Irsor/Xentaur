@@ -13,7 +13,7 @@ xe_core::PhysicalDevices::~PhysicalDevices() {
 void xe_core::PhysicalDevices::SelectDevice(vk::QueueFlags requiredQueueType, bool supportsPresent) {
     for (int i = 0; i < devices.size(); i++) {
         for (int j = 0; devices[i].queueFamilyProperties.size(); j++) {
-            const auto &properties = devices[i].queueFamilyProperties[j].queueFamilyProperties;
+            const auto &properties = devices[i].queueFamilyProperties[j];
             if (properties.queueFlags && static_cast<bool>(devices[i].queueSupportsPresent[j]) == supportsPresent) {
                 deviceIndex = i;
                 queueFamily = j;
@@ -37,8 +37,9 @@ void xe_core::PhysicalDevices::Init(const vk::UniqueInstance &instance, const vk
     for (const auto &physicalDevice : physicalDevices) {
         PhysicalDevice device{};
         device.device = physicalDevice;
+        device.features = physicalDevice.getFeatures();
         device.deviceProperties = physicalDevice.getProperties();
-        device.queueFamilyProperties = physicalDevice.getQueueFamilyProperties2();
+        device.queueFamilyProperties = physicalDevice.getQueueFamilyProperties();
         for (int i = 0; i < device.queueFamilyProperties.size(); i++) {
             device.queueSupportsPresent.push_back(physicalDevice.getSurfaceSupportKHR(i, surface.get(), surface.getDispatch()));
         }

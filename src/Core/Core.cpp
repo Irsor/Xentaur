@@ -12,6 +12,7 @@ void xe_core::Core::Init(std::shared_ptr<xe::Window> window) {
     CreateInstance();
     CreateSurface(window);
     GetPhysicalDevices();
+    CreateDevice();
 }
 
 void xe_core::Core::CreateInstance() {
@@ -71,4 +72,43 @@ void xe_core::Core::CreateSurface(std::shared_ptr<xe::Window> window) {
 
 void xe_core::Core::GetPhysicalDevices() {
     physicalDevices = std::make_unique<xe_core::PhysicalDevices>(instance, surface);
+}
+
+void xe_core::Core::CreateDevice() {
+    float queuePriorities[] = { 1.0f };
+
+    vk::DeviceQueueCreateInfo queueCreateInfo{};
+    queueCreateInfo.queueFamilyIndex = physicalDevices->GetFamily();
+    queueCreateInfo.queueCount = 1;
+    queueCreateInfo.pQueuePriorities = &queuePriorities[0];
+
+    std::vector<const char*> extensions = {
+            VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+            VK_KHR_SHADER_DRAW_PARAMETERS_EXTENSION_NAME
+    };
+
+    if (physicalDevices->GetSelected().features.geometryShader == vk::False) {
+        throw std::exception("Geometry shader is not supported");
+    }
+
+    if (physicalDevices->GetSelected().features.tessellationShader == vk::False) {
+        throw std::exception("Tesselation shader is not supported");
+    }
+
+    vk::PhysicalDeviceFeatures features{};
+    features.geometryShader = vk::True;
+    features.tessellationShader = vk::True;
+
+    vk::DeviceCreateInfo deviceCreateInfo{};
+    deviceCreateInfo.queueCreateInfoCount = 1;
+    deviceCreateInfo.pQueueCreateInfos = &queueCreateInfo;
+    deviceCreateInfo.enabledExtensionCount = extensions.size();
+    deviceCreateInfo.ppEnabledExtensionNames = extensions.data();
+    deviceCreateInfo.pEnabledFeatures = &features;
+
+    try {
+        device = physicalDevices->GetSelected().device.createDeviceUnique(deviceCreateInfo);
+    } catch (const std::exception &ex) {
+        std::cerr << ex.what() << "Device creation error" << std::endl;
+    }
 }

@@ -9,8 +9,9 @@
 namespace xe_core {
     struct PhysicalDevice {
         vk::PhysicalDevice device;
+        vk::PhysicalDeviceFeatures features;
         vk::PhysicalDeviceProperties deviceProperties;
-        std::vector<vk::QueueFamilyProperties2> queueFamilyProperties;
+        std::vector<vk::QueueFamilyProperties> queueFamilyProperties;
         std::vector<vk::Bool32> queueSupportsPresent;
         std::vector<vk::SurfaceFormatKHR> surfaceFormats;
         vk::SurfaceCapabilitiesKHR surfaceCapabilities;

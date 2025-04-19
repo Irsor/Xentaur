@@ -28,10 +28,12 @@ namespace xe_core {
         std::vector<const char*> GetExtensions() const;
         void CreateSurface(std::shared_ptr<xe::Window> window);
         void GetPhysicalDevices();
+        void CreateDevice();
 
         std::string name;
         vk::UniqueInstance instance;
         vk::UniqueSurfaceKHR surface;
         std::unique_ptr<PhysicalDevices> physicalDevices;
+        vk::UniqueDevice device;
     };
 }
