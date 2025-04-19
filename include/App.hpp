@@ -6,7 +6,7 @@
 #include <glfw/glfw3.h>
 
 #include "Window.hpp"
-#include "Core/VulkanCore.hpp"
+#include "Core/Core.hpp"
 
 namespace xe {
     class App {
@@ -20,7 +20,7 @@ namespace xe {
         void Init();
 
         std::shared_ptr<xe::Window> window;
-        std::unique_ptr<xe_core::VulkanCore> core;
+        std::unique_ptr<xe_core::Core> core;
         std::string name{};
     };
 }

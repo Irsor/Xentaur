@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.31)
+cmake_minimum_required(VERSION 3.30)
 project(Xentaur)
 
 set(CMAKE_CXX_STANDARD 23)
@@ -40,7 +40,8 @@ FetchContent_MakeAvailable(glm)
 add_executable(${PROJECT_NAME} main.cpp
         src/Window.cpp
         src/App.cpp
-        src/Core/VulkanCore.cpp
+        src/Core/Core.cpp
+        src/Core/PhysicalDevices.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE

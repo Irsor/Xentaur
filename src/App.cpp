@@ -20,5 +20,5 @@ void xe::App::Init() {
     window = std::make_shared<xe::Window>(name);
 
     // Инициализация Vulkan
-    core = std::make_unique<xe_core::VulkanCore>(name, window);
+    core = std::make_unique<xe_core::Core>(name, window);
 }

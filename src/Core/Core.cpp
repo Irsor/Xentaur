@@ -1,19 +1,20 @@
-    #include "Core/VulkanCore.hpp"
+#include "Core/Core.hpp"
 
-xe_core::VulkanCore::VulkanCore(const std::string &appName, std::shared_ptr<xe::Window> window) : name(appName) {
+xe_core::Core::Core(const std::string &appName, std::shared_ptr<xe::Window> window) : name(appName) {
     Init(window);
 }
 
-xe_core::VulkanCore::~VulkanCore() {
+xe_core::Core::~Core() {
 
 }
 
-void xe_core::VulkanCore::Init(std::shared_ptr<xe::Window> window) {
+void xe_core::Core::Init(std::shared_ptr<xe::Window> window) {
     CreateInstance();
     CreateSurface(window);
+    GetPhysicalDevices();
 }
 
-void xe_core::VulkanCore::CreateInstance() {
+void xe_core::Core::CreateInstance() {
     std::vector<const char*> layers = {
             "VK_LAYER_KHRONOS_validation"
     };
@@ -45,7 +46,7 @@ void xe_core::VulkanCore::CreateInstance() {
     }
 }
 
-std::vector<const char*> xe_core::VulkanCore::GetExtensions() const {
+std::vector<const char*> xe_core::Core::GetExtensions() const {
     uint32_t glfwExtensionCount = 0;
     const char** glfwExtensions;
     glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
@@ -59,11 +60,15 @@ std::vector<const char*> xe_core::VulkanCore::GetExtensions() const {
     return extensions;
 }
 
-void xe_core::VulkanCore::CreateSurface(std::shared_ptr<xe::Window> window) {
+void xe_core::Core::CreateSurface(std::shared_ptr<xe::Window> window) {
     VkSurfaceKHR vkSurface;
     if (glfwCreateWindowSurface(instance.get(), window->get(), nullptr, &vkSurface)) {
         throw std::runtime_error("Failed to create window surface!");
     }
 
     surface = vk::UniqueSurfaceKHR(vkSurface, instance.get());
+}
+
+void xe_core::Core::GetPhysicalDevices() {
+    physicalDevices = std::make_unique<xe_core::PhysicalDevices>(instance, surface);
 }
