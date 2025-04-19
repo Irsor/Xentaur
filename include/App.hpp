@@ -19,7 +19,7 @@ namespace xe {
     private:
         void Init();
 
-        std::unique_ptr<xe::Window> window;
+        std::shared_ptr<xe::Window> window;
         std::unique_ptr<xe_core::VulkanCore> core;
         std::string name{};
     };

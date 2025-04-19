@@ -17,8 +17,8 @@ void xe::App::Run() const {
 void xe::App::Init() {
 
     // Создание окна
-    window = std::make_unique<xe::Window>(name);
+    window = std::make_shared<xe::Window>(name);
 
     // Инициализация Vulkan
-    core = std::make_unique<xe_core::VulkanCore>(name);
+    core = std::make_unique<xe_core::VulkanCore>(name, window);
 }

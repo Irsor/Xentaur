@@ -1,15 +1,16 @@
     #include "Core/VulkanCore.hpp"
 
-xe_core::VulkanCore::VulkanCore(const std::string &appName) : name(appName) {
-    Init();
+xe_core::VulkanCore::VulkanCore(const std::string &appName, std::shared_ptr<xe::Window> window) : name(appName) {
+    Init(window);
 }
 
 xe_core::VulkanCore::~VulkanCore() {
 
 }
 
-void xe_core::VulkanCore::Init() {
+void xe_core::VulkanCore::Init(std::shared_ptr<xe::Window> window) {
     CreateInstance();
+    CreateSurface(window);
 }
 
 void xe_core::VulkanCore::CreateInstance() {
@@ -56,4 +57,13 @@ std::vector<const char*> xe_core::VulkanCore::GetExtensions() const {
     }
 
     return extensions;
+}
+
+void xe_core::VulkanCore::CreateSurface(std::shared_ptr<xe::Window> window) {
+    VkSurfaceKHR vkSurface;
+    if (glfwCreateWindowSurface(instance.get(), window->get(), nullptr, &vkSurface)) {
+        throw std::runtime_error("Failed to create window surface!");
+    }
+
+    surface = vk::UniqueSurfaceKHR(vkSurface, instance.get());
 }
