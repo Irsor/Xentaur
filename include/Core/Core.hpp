@@ -29,11 +29,16 @@ namespace xe_core {
         void CreateSurface(std::shared_ptr<xe::Window> window);
         void GetPhysicalDevices();
         void CreateDevice();
+        void CreateSwapchain();
 
         std::string name;
         vk::UniqueInstance instance;
         vk::UniqueSurfaceKHR surface;
         std::unique_ptr<PhysicalDevices> physicalDevices;
+        unsigned int queueFamily;
         vk::UniqueDevice device;
+        vk::UniqueSwapchainKHR swapchain;
+        std::vector<vk::Image> images;
+        std::vector<vk::ImageView> imageViews;
     };
 }
