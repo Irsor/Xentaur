@@ -42,6 +42,7 @@ add_executable(${PROJECT_NAME} main.cpp
         src/App.cpp
         src/Core/Core.cpp
         src/Core/PhysicalDevices.cpp
+        src/Core/Queue.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE

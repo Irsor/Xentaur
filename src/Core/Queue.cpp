@@ -3,17 +3,17 @@
 xe_core::Queue::Queue(const vk::UniqueDevice &vulkanDevice, const vk::UniqueSwapchainKHR &vulkanSwapchain,
                       int queueFamily, int queueIndex) : device(vulkanDevice.get()), swapchain(vulkanSwapchain.get()) {
     device.getQueue(queueFamily, queueIndex, &queue);
-    CreateSemaphores();
+    Init();
 }
 
 xe_core::Queue::~Queue() {}
 
-void xe_core::Queue::Init(const vk::UniqueDevice &device, const vk::UniqueSwapchainKHR &swapchain,
-                          int queueFamily, int queueIndex) {
+void xe_core::Queue::Init() {
+    CreateSemaphores();
 }
 
 int xe_core::Queue::AcquireNextImage() {
-   auto imageIndex = 0;
+   int imageIndex = 0;
    try {
        uint32_t imageIndex = 0;
        vk::Result result = device.acquireNextImageKHR(
@@ -27,11 +27,11 @@ int xe_core::Queue::AcquireNextImage() {
            throw std::runtime_error("Failed to acquire next image");
        }
 
-   } catch (const std::exception &ex) {  
-       std::cerr << "Failed to acquire next image: " << ex.what() << std::endl;  
-   }  
+   } catch (const std::exception &ex) {
+       std::cerr << "Failed to acquire next image: " << ex.what() << std::endl;
+   }
 
-   return imageIndex;  
+   return imageIndex;
 }
 
 void xe_core::Queue::Submit(const vk::UniqueCommandBuffer &commandBuffer) {
@@ -94,7 +94,7 @@ void xe_core::Queue::CreateSemaphores() {
 
     try {
         renderCompleteSemaphore = device.createSemaphoreUnique(renderSemaphoreCreateInfo);
-        presentCompleteSemaphore = device.createSemaphoreUnique(renderSemaphoreCreateInfo);
+        presentCompleteSemaphore = device.createSemaphoreUnique(presentSemaphoreCreateInfo);
     } catch (const std::exception &ex) {
         std::cerr << "Failed to create queue semaphores: " << ex.what() << std::endl;
     }

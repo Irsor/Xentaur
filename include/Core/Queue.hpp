@@ -10,8 +10,8 @@ namespace xe_core {
         Queue(const vk::UniqueDevice &vulkanDevice, const vk::UniqueSwapchainKHR &vulkanSwapchain, int queueFamily, int queueIndex);
         ~Queue();
 
-        void Init(const vk::UniqueDevice &device, const vk::UniqueSwapchainKHR &swapchain, int queueFamily, int queueIndex);
-        
+        void Init();
+
         int AcquireNextImage();
         void Submit(const vk::UniqueCommandBuffer&commandBuffer);
         void SubmitAsync(const vk::UniqueCommandBuffer &commandBuffer);
