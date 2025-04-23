@@ -21,6 +21,8 @@ namespace xe_core {
     public:
         Core(const std::string &appName, std::shared_ptr<xe::Window> window);
         ~Core();
+        unsigned int GetNumImages() const;
+        void CreateCommandBuffers(unsigned int numImages, std::vector<vk::UniqueCommandBuffer> &buffers);
 
     private:
         void Init(std::shared_ptr<xe::Window> window);
@@ -30,6 +32,8 @@ namespace xe_core {
         void GetPhysicalDevices();
         void CreateDevice();
         void CreateSwapchain();
+        void CreateCommandPool();
+        std::vector<vk::UniqueCommandBuffer> AllocateCommandBuffers(unsigned int count);
 
         std::string name;
         vk::UniqueInstance instance;
@@ -38,7 +42,8 @@ namespace xe_core {
         unsigned int queueFamily;
         vk::UniqueDevice device;
         vk::UniqueSwapchainKHR swapchain;
-        std::vector<vk::Image> images;
-        std::vector<vk::ImageView> imageViews;
+        std::vector<vk::Image> images{};
+        std::vector<vk::ImageView> imageViews{};
+        vk::UniqueCommandPool commandPool;
     };
 }

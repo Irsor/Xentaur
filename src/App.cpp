@@ -21,4 +21,15 @@ void xe::App::Init() {
 
     // Инициализация Vulkan
     core = std::make_unique<xe_core::Core>(name, window);
+    numImages = core->GetNumImages();
+    CreateCommandBuffers();
+}
+
+void xe::App::CreateCommandBuffers() {
+    commandBuffers.resize(numImages);
+    core->CreateCommandBuffers(numImages, commandBuffers);
+
+    for (const auto& item : commandBuffers) {
+        std::cout << item.get() << std::endl;
+    }
 }

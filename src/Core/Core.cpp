@@ -8,12 +8,21 @@ xe_core::Core::~Core() {
 
 }
 
+unsigned int xe_core::Core::GetNumImages() const {
+    return images.size();
+}
+
+void xe_core::Core::CreateCommandBuffers(unsigned int numImages, std::vector<vk::UniqueCommandBuffer> &buffers) {
+    buffers = AllocateCommandBuffers(numImages);
+}
+
 void xe_core::Core::Init(std::shared_ptr<xe::Window> window) {
     CreateInstance();
     CreateSurface(window);
     GetPhysicalDevices();
     CreateDevice();
     CreateSwapchain();
+    CreateCommandPool();
 }
 
 void xe_core::Core::CreateInstance() {
@@ -172,26 +181,52 @@ void xe_core::Core::CreateSwapchain() {
        swapchain = device->createSwapchainKHRUnique(swapchainCreateInfo);  
        std::vector<vk::Image> swapchainImages = device->getSwapchainImagesKHR(swapchain.get());  
 
-       for (const auto& image : swapchainImages) {  
+       for (const auto &image : swapchainImages) {
            vk::ImageViewCreateInfo imageViewCreateInfo{};  
-           imageViewCreateInfo.image = image;  
-           imageViewCreateInfo.viewType = vk::ImageViewType::e2D;  
-           imageViewCreateInfo.format = surfaceFormat.format;
-           imageViewCreateInfo.components = vk::ComponentMapping(
-                   vk::ComponentSwizzle::eIdentity,
-                   vk::ComponentSwizzle::eIdentity,
-                   vk::ComponentSwizzle::eIdentity,
-                   vk::ComponentSwizzle::eIdentity
-           );
-           imageViewCreateInfo.subresourceRange = vk::ImageSubresourceRange(
-                   vk::ImageAspectFlagBits::eColor,
-                   0, 1, 0, 1
-           );
+           imageViewCreateInfo.setImage(image);
+           imageViewCreateInfo.setViewType(vk::ImageViewType::e2D);
+           imageViewCreateInfo.setFormat(surfaceFormat.format);
+           imageViewCreateInfo.setComponents(vk::ComponentMapping(
+               vk::ComponentSwizzle::eIdentity,
+               vk::ComponentSwizzle::eIdentity,
+               vk::ComponentSwizzle::eIdentity,
+               vk::ComponentSwizzle::eIdentity
+           ));
+           imageViewCreateInfo.setSubresourceRange(vk::ImageSubresourceRange(
+               vk::ImageAspectFlagBits::eColor,
+               0, 1, 0, 1
+           ));
 
            images.push_back(image);
            imageViews.push_back(device->createImageView(imageViewCreateInfo));
        }  
-   } catch (const std::exception& ex) {  
+   } catch (const std::exception &ex) {
        std::cerr << "Failed to create Swapchain: " << ex.what() << std::endl;  
    }  
+}
+
+void xe_core::Core::CreateCommandPool() {
+    vk::CommandPoolCreateInfo createInfo{};
+    createInfo.setQueueFamilyIndex(queueFamily);
+
+    try {
+        commandPool = device->createCommandPoolUnique(createInfo);
+    } catch (const std::exception &ex) {
+        std::cerr << "Failed to create Command Pool: " << ex.what() << std::endl;
+    }
+}
+
+std::vector<vk::UniqueCommandBuffer> xe_core::Core::AllocateCommandBuffers(unsigned int count) {
+    vk::CommandBufferAllocateInfo allocateInfo{};
+    allocateInfo.setCommandPool(commandPool.get());
+    allocateInfo.setLevel(vk::CommandBufferLevel::ePrimary);
+    allocateInfo.setCommandBufferCount(count);
+
+    try {
+        return device->allocateCommandBuffersUnique(allocateInfo);
+    }
+    catch (const std::exception &ex) {
+        std::cerr << "Failed to allocate command buffers: " << ex.what() << std::endl;
+        return {};
+    }
 }

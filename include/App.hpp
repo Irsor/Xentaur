@@ -4,6 +4,7 @@
 #include <memory>
 
 #include <glfw/glfw3.h>
+#include <vulkan/vulkan.hpp>
 
 #include "Window.hpp"
 #include "Core/Core.hpp"
@@ -18,9 +19,14 @@ namespace xe {
 
     private:
         void Init();
+        void CreateCommandBuffers();
 
         std::shared_ptr<xe::Window> window;
-        std::unique_ptr<xe_core::Core> core;
         std::string name{};
+
+        // Render
+        std::unique_ptr<xe_core::Core> core;
+        int numImages{0};
+        std::vector<vk::UniqueCommandBuffer> commandBuffers{};
     };
 }
