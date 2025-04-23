@@ -22,6 +22,7 @@ namespace xe_core {
         Core(const std::string &appName, std::shared_ptr<xe::Window> window);
         ~Core();
         unsigned int GetNumImages() const;
+        vk::Image GetImage(unsigned int index) const;
         void CreateCommandBuffers(unsigned int numImages, std::vector<vk::UniqueCommandBuffer> &buffers);
 
     private:

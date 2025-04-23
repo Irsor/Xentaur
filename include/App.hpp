@@ -19,7 +19,9 @@ namespace xe {
 
     private:
         void Init();
+
         void CreateCommandBuffers();
+        void RecordCommandBuffers();
 
         std::shared_ptr<xe::Window> window;
         std::string name{};

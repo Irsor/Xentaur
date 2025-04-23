@@ -12,6 +12,14 @@ unsigned int xe_core::Core::GetNumImages() const {
     return images.size();
 }
 
+vk::Image xe_core::Core::GetImage(unsigned int index) const {
+    try {
+        return images[index];
+    } catch (const std::exception &ex) {
+        std::cerr << "Image does not exists: " << ex.what() << std::endl;
+    }
+}
+
 void xe_core::Core::CreateCommandBuffers(unsigned int numImages, std::vector<vk::UniqueCommandBuffer> &buffers) {
     buffers = AllocateCommandBuffers(numImages);
 }
