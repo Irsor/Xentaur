@@ -9,6 +9,7 @@
 
 #include "../Window.hpp"
 #include "PhysicalDevices.hpp"
+#include "Queue.hpp"
 
 #ifndef NDEBUG
     const bool enableValidationLayers = true;
@@ -24,6 +25,7 @@ namespace xe_core {
         unsigned int GetNumImages() const;
         vk::Image GetImage(unsigned int index) const;
         void CreateCommandBuffers(unsigned int numImages, std::vector<vk::UniqueCommandBuffer> &buffers);
+        std::shared_ptr<Queue> GetQueue();
 
     private:
         void Init(std::shared_ptr<xe::Window> window);
@@ -46,5 +48,6 @@ namespace xe_core {
         std::vector<vk::Image> images{};
         std::vector<vk::ImageView> imageViews{};
         vk::UniqueCommandPool commandPool;
+        std::shared_ptr<Queue> queue;
     };
 }

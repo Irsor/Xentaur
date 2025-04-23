@@ -24,6 +24,10 @@ void xe_core::Core::CreateCommandBuffers(unsigned int numImages, std::vector<vk:
     buffers = AllocateCommandBuffers(numImages);
 }
 
+std::shared_ptr<xe_core::Queue> xe_core::Core::GetQueue() {
+    return queue;
+}
+
 void xe_core::Core::Init(std::shared_ptr<xe::Window> window) {
     CreateInstance();
     CreateSurface(window);
@@ -31,6 +35,7 @@ void xe_core::Core::Init(std::shared_ptr<xe::Window> window) {
     CreateDevice();
     CreateSwapchain();
     CreateCommandPool();
+    queue = std::make_shared<Queue>(device, swapchain, queueFamily, 0);
 }
 
 void xe_core::Core::CreateInstance() {

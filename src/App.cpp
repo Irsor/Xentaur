@@ -10,6 +10,9 @@ xe::App::~App() {
 
 void xe::App::Run() const {
     while (!glfwWindowShouldClose(window->get())) {
+        unsigned int imageIndex = queue->AcquireNextImage();
+        queue->SubmitAsync(commandBuffers[imageIndex]);
+        queue->Present(imageIndex);
         glfwPollEvents();
     }
 }
@@ -22,6 +25,7 @@ void xe::App::Init() {
     // Инициализация Vulkan
     core = std::make_unique<xe_core::Core>(name, window);
     numImages = core->GetNumImages();
+    queue = core->GetQueue();
     CreateCommandBuffers();
     RecordCommandBuffers();
 }
@@ -42,6 +46,7 @@ void xe::App::RecordCommandBuffers() {
     for (size_t i = 0; i < commandBuffers.size(); i++) {
         try {
             vk::CommandBufferBeginInfo beginInfo{};
+            beginInfo.setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse);
 
             commandBuffers[i]->begin(beginInfo);
             commandBuffers[i]->clearColorImage(core->GetImage(i), vk::ImageLayout::eGeneral, &colorValue, 1, &imageRange);
