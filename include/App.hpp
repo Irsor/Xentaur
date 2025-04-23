@@ -29,7 +29,7 @@ namespace xe {
         // Render
         std::unique_ptr<xe_core::Core> core;
         int numImages{0};
-        std::vector<vk::UniqueCommandBuffer> commandBuffers{};
+        std::vector<vk::CommandBuffer> commandBuffers{};
         std::shared_ptr<xe_core::Queue> queue;
     };
 }

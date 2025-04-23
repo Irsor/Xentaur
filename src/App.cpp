@@ -71,10 +71,10 @@ void xe::App::RecordCommandBuffers() {
             vk::CommandBufferBeginInfo beginInfo{};
             beginInfo.setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse);
 
-            commandBuffers[i]->begin(beginInfo);
+            commandBuffers[i].begin(beginInfo);
 
             // Добавление барьера перед очисткой
-            commandBuffers[i]->pipelineBarrier(
+            commandBuffers[i].pipelineBarrier(
                 vk::PipelineStageFlagBits::eTopOfPipe,
                 vk::PipelineStageFlagBits::eTransfer,
                 vk::DependencyFlags(),
@@ -83,10 +83,10 @@ void xe::App::RecordCommandBuffers() {
             );
 
             // Очистка изображения
-            commandBuffers[i]->clearColorImage(core->GetImage(i), vk::ImageLayout::eTransferDstOptimal, &colorValue, 1, &imageRange);
+            commandBuffers[i].clearColorImage(core->GetImage(i), vk::ImageLayout::eTransferDstOptimal, &colorValue, 1, &imageRange);
 
             // Добавление барьера после очистки, чтобы подготовить изображение для отображения
-            commandBuffers[i]->pipelineBarrier(
+            commandBuffers[i].pipelineBarrier(
                 vk::PipelineStageFlagBits::eTransfer,
                 vk::PipelineStageFlagBits::eBottomOfPipe,
                 vk::DependencyFlags(),
@@ -95,7 +95,7 @@ void xe::App::RecordCommandBuffers() {
             );
 
             // Завершение командного буфера
-            commandBuffers[i]->end();
+            commandBuffers[i].end();
 
         }
         catch (const std::exception &ex) {

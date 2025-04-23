@@ -20,7 +20,7 @@ vk::Image xe_core::Core::GetImage(unsigned int index) const {
     }
 }
 
-void xe_core::Core::CreateCommandBuffers(unsigned int numImages, std::vector<vk::UniqueCommandBuffer> &buffers) {
+void xe_core::Core::CreateCommandBuffers(unsigned int numImages, std::vector<vk::CommandBuffer> &buffers) {
     buffers = AllocateCommandBuffers(numImages);
 }
 
@@ -229,14 +229,14 @@ void xe_core::Core::CreateCommandPool() {
     }
 }
 
-std::vector<vk::UniqueCommandBuffer> xe_core::Core::AllocateCommandBuffers(unsigned int count) {
+std::vector<vk::CommandBuffer> xe_core::Core::AllocateCommandBuffers(unsigned int count) {
     vk::CommandBufferAllocateInfo allocateInfo{};
     allocateInfo.setCommandPool(commandPool.get());
     allocateInfo.setLevel(vk::CommandBufferLevel::ePrimary);
     allocateInfo.setCommandBufferCount(count);
 
     try {
-        return device->allocateCommandBuffersUnique(allocateInfo);
+        return device->allocateCommandBuffers(allocateInfo);
     }
     catch (const std::exception &ex) {
         std::cerr << "Failed to allocate command buffers: " << ex.what() << std::endl;

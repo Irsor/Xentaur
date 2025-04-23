@@ -24,7 +24,7 @@ namespace xe_core {
         ~Core();
         unsigned int GetNumImages() const;
         vk::Image GetImage(unsigned int index) const;
-        void CreateCommandBuffers(unsigned int numImages, std::vector<vk::UniqueCommandBuffer> &buffers);
+        void CreateCommandBuffers(unsigned int numImages, std::vector<vk::CommandBuffer> &buffers);
         std::shared_ptr<Queue> GetQueue();
 
     private:
@@ -36,7 +36,7 @@ namespace xe_core {
         void CreateDevice();
         void CreateSwapchain();
         void CreateCommandPool();
-        std::vector<vk::UniqueCommandBuffer> AllocateCommandBuffers(unsigned int count);
+        std::vector<vk::CommandBuffer> AllocateCommandBuffers(unsigned int count);
 
         std::string name;
         vk::UniqueInstance instance;

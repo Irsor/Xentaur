@@ -13,41 +13,38 @@ void xe_core::Queue::Init() {
 }
 
 int xe_core::Queue::AcquireNextImage() {
-   int imageIndex = 0;
-   try {
-       uint32_t imageIndex = 0;
-       vk::Result result = device.acquireNextImageKHR(
-               swapchain,
-               UINT64_MAX,
-               presentCompleteSemaphore.get(),
-               nullptr,
-               &imageIndex
-       );
-       if (result != vk::Result::eSuccess) {
-           throw std::runtime_error("Failed to acquire next image");
-       }
+    uint32_t imageIndex = 0;
+    try {
+        vk::Result result = device.acquireNextImageKHR(
+            swapchain,
+            UINT64_MAX,
+            presentCompleteSemaphore.get(),
+            nullptr,
+            &imageIndex
+        );
+        if (result != vk::Result::eSuccess) {
+            throw std::runtime_error("Failed to acquire next image");
+        }
+    } catch (const std::exception& ex) {
+        std::cerr << "Failed to acquire next image: " << ex.what() << std::endl;
+    }
 
-   } catch (const std::exception &ex) {
-       std::cerr << "Failed to acquire next image: " << ex.what() << std::endl;
-   }
-
-   return imageIndex;
+    return imageIndex;
 }
 
-void xe_core::Queue::Submit(const vk::UniqueCommandBuffer &commandBuffer) {
+void xe_core::Queue::Submit(const vk::CommandBuffer &commandBuffer) {
     vk::SubmitInfo submitInfo{};
     submitInfo.setCommandBufferCount(1);
-    submitInfo.setPCommandBuffers(&commandBuffer.get());
+    submitInfo.setPCommandBuffers(&commandBuffer);
 
     try {
         queue.submit(submitInfo);
-    }
-    catch (const std::exception& ex) {
+    } catch (const std::exception &ex) {
         std::cerr << "Failed to Submit Async: " << ex.what() << std::endl;
     }
 }
 
-void xe_core::Queue::SubmitAsync(const vk::UniqueCommandBuffer &commandBuffer) {
+void xe_core::Queue::SubmitAsync(const vk::CommandBuffer &commandBuffer) {
     vk::PipelineStageFlags flags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
 
     vk::SubmitInfo submitInfo{};
@@ -55,13 +52,13 @@ void xe_core::Queue::SubmitAsync(const vk::UniqueCommandBuffer &commandBuffer) {
     submitInfo.setPWaitSemaphores(&presentCompleteSemaphore.get());
     submitInfo.setPWaitDstStageMask(&flags);
     submitInfo.setCommandBufferCount(1);
-    submitInfo.setPCommandBuffers(&commandBuffer.get());
+    submitInfo.setPCommandBuffers(&commandBuffer);
     submitInfo.setSignalSemaphoreCount(1);
     submitInfo.setPSignalSemaphores(&renderCompleteSemaphore.get());
 
     try {
         queue.submit(submitInfo);
-    } catch (const std::exception& ex) {
+    } catch (const std::exception &ex) {
         std::cerr << "Failed to Submit Async: " << ex.what() << std::endl;
     }
 }

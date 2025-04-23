@@ -13,8 +13,8 @@ namespace xe_core {
         void Init();
 
         int AcquireNextImage();
-        void Submit(const vk::UniqueCommandBuffer&commandBuffer);
-        void SubmitAsync(const vk::UniqueCommandBuffer &commandBuffer);
+        void Submit(const vk::CommandBuffer &commandBuffer);
+        void SubmitAsync(const vk::CommandBuffer &commandBuffer);
         void Present(const unsigned int imageIndex);
         void Wait();
 
