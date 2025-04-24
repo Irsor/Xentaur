@@ -79,6 +79,8 @@ void xe_core::Queue::Present(const unsigned int imageIndex) {
     } catch (const std::exception& ex) {
         std::cerr << "Failed to Present: " << ex.what() << std::endl;
     }
+
+    Wait();
 }
 
 void xe_core::Queue::Wait() {
