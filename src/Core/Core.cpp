@@ -28,14 +28,72 @@ std::shared_ptr<xe_core::Queue> xe_core::Core::GetQueue() {
     return queue;
 }
 
-void xe_core::Core::Init(std::shared_ptr<xe::Window> window) {
+vk::RenderPass xe_core::Core::CreateDefaultRenderPass() {
+    vk::AttachmentDescription description{};
+    description.setFormat(surfaceFormat.format);
+    description.setSamples(vk::SampleCountFlagBits::e1);
+    description.setLoadOp(vk::AttachmentLoadOp::eClear);
+    description.setStoreOp(vk::AttachmentStoreOp::eStore);
+    description.setStencilLoadOp(vk::AttachmentLoadOp::eDontCare);
+    description.setStencilStoreOp(vk::AttachmentStoreOp::eDontCare);
+    description.setInitialLayout(vk::ImageLayout::eUndefined);
+    description.setFinalLayout(vk::ImageLayout::ePresentSrcKHR);
+
+    vk::AttachmentReference reference{};
+    reference.setLayout(vk::ImageLayout::ePresentSrcKHR);
+
+    vk::SubpassDescription subpassDescription{};
+    subpassDescription.setColorAttachmentCount(1);
+    subpassDescription.setPColorAttachments(&reference);
+
+    vk::RenderPassCreateInfo renderPassCreateInfo{};
+    renderPassCreateInfo.setAttachmentCount(1);
+    renderPassCreateInfo.setPAttachments(&description);
+    renderPassCreateInfo.setSubpassCount(1);
+    renderPassCreateInfo.setPSubpasses(&subpassDescription);
+
+    try
+    {
+        return device->createRenderPass(renderPassCreateInfo);
+    }
+    catch (const std::exception &ex) {
+        std::cerr << "Failed to create Render Pass: " << ex.what() << std::endl;
+    }
+}
+
+void xe_core::Core::DestroyRenderPass(const vk::RenderPass &renderPass) const {
+    device->destroyRenderPass(renderPass);
+}
+
+std::vector<vk::Framebuffer> xe_core::Core::CreateFrameBuffers(const vk::RenderPass &renderPass) {
+    for (size_t i = 0; i < images.size(); i++) {
+        vk::FramebufferCreateInfo createInfo{};
+        createInfo.setRenderPass(renderPass);
+        createInfo.setAttachmentCount(1);
+        createInfo.setPAttachments(&imageViews[i]);
+        createInfo.setWidth(window->getWidth());
+        createInfo.setHeight(window->getHeight());
+        createInfo.setLayers(1);
+
+        try {
+            frameBuffers.push_back(device->createFramebuffer(createInfo));
+        } catch (const std::exception &ex) {
+            std::cerr << "Failed to create framebuffer: " << ex.what() << std::endl;
+        }
+    }
+
+    return frameBuffers;
+}
+
+void xe_core::Core::Init(std::shared_ptr<xe::Window> win) {
     CreateInstance();
-    CreateSurface(window);
+    CreateSurface(win);
     GetPhysicalDevices();
     CreateDevice();
     CreateSwapchain();
     CreateCommandPool();
     queue = std::make_shared<Queue>(device, swapchain, queueFamily, 0);
+    window = win;
 }
 
 void xe_core::Core::CreateInstance() {
@@ -150,7 +208,7 @@ void xe_core::Core::CreateSwapchain() {
    }  
 
    // Выбор формата surface и пространства цвета  
-   vk::SurfaceFormatKHR surfaceFormat = selected.surfaceFormats.front();  
+   surfaceFormat = selected.surfaceFormats.front();
    auto surfaceFormatIter = std::find_if(  
        selected.surfaceFormats.begin(),  
        selected.surfaceFormats.end(),  

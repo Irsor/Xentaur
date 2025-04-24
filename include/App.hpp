@@ -31,5 +31,8 @@ namespace xe {
         int numImages{0};
         std::vector<vk::CommandBuffer> commandBuffers{};
         std::shared_ptr<xe_core::Queue> queue;
+
+        vk::RenderPass renderPass{};
+        std::vector<vk::Framebuffer> frameBuffers{};
     };
 }

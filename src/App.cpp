@@ -5,7 +5,7 @@ xe::App::App(const std::string &appName) : name(appName) {
 }
 
 xe::App::~App() {
-
+    core->DestroyRenderPass(renderPass);
 }
 
 void xe::App::Run() const {
@@ -26,6 +26,8 @@ void xe::App::Init() {
     core = std::make_unique<xe_core::Core>(name, window);
     numImages = core->GetNumImages();
     queue = core->GetQueue();
+    renderPass = core->CreateDefaultRenderPass();
+    frameBuffers = core->CreateFrameBuffers(renderPass);
     CreateCommandBuffers();
     RecordCommandBuffers();
 }
@@ -37,62 +39,31 @@ void xe::App::CreateCommandBuffers() {
 
 void xe::App::RecordCommandBuffers() {
     vk::ClearColorValue colorValue{ 0.0f, 1.0f, 0.0f, 1.0f };
+    vk::ClearValue clearValue{};
+    clearValue.setColor(colorValue);
 
-    vk::ImageSubresourceRange imageRange{};
-    imageRange.setAspectMask(vk::ImageAspectFlagBits::eColor);
-    imageRange.setLevelCount(1);
-    imageRange.setLayerCount(1);
+    vk::RenderPassBeginInfo renderPassBeginInfo{};
+    renderPassBeginInfo.setRenderPass(renderPass);
+    renderPassBeginInfo.setRenderArea({
+        { 0, 0 },
+        { static_cast<uint32_t>(window->getWidth()), static_cast<uint32_t>(window->getHeight()) },
+    });
+    renderPassBeginInfo.setClearValueCount(1);
+    renderPassBeginInfo.setPClearValues(&clearValue);
 
     for (size_t i = 0; i < commandBuffers.size(); i++) {
         try {
-            // Создание барьера для подготовки изображения к очистке
-            vk::ImageMemoryBarrier presentToClearBarrier{};
-            presentToClearBarrier.setSrcAccessMask(vk::AccessFlagBits::eMemoryRead);
-            presentToClearBarrier.setDstAccessMask(vk::AccessFlagBits::eTransferWrite);
-            presentToClearBarrier.setOldLayout(vk::ImageLayout::eUndefined);
-            presentToClearBarrier.setNewLayout(vk::ImageLayout::eTransferDstOptimal);
-            presentToClearBarrier.setSrcQueueFamilyIndex(vk::QueueFamilyIgnored);
-            presentToClearBarrier.setDstQueueFamilyIndex(vk::QueueFamilyIgnored);
-            presentToClearBarrier.setImage(core->GetImage(i));
-            presentToClearBarrier.setSubresourceRange(imageRange);
-
-            // Создание барьера для подготовки изображения к отображению
-            vk::ImageMemoryBarrier clearToPresentBarrier{};
-            clearToPresentBarrier.setSrcAccessMask(vk::AccessFlagBits::eTransferRead);
-            clearToPresentBarrier.setDstAccessMask(vk::AccessFlagBits::eMemoryRead);
-            clearToPresentBarrier.setOldLayout(vk::ImageLayout::eTransferDstOptimal);
-            clearToPresentBarrier.setNewLayout(vk::ImageLayout::ePresentSrcKHR);
-            clearToPresentBarrier.setSrcQueueFamilyIndex(vk::QueueFamilyIgnored);
-            clearToPresentBarrier.setDstQueueFamilyIndex(vk::QueueFamilyIgnored);
-            clearToPresentBarrier.setImage(core->GetImage(i));
-            clearToPresentBarrier.setSubresourceRange(imageRange);
-
+         
             // Начало командного буфера
             vk::CommandBufferBeginInfo beginInfo{};
-            beginInfo.setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse);
-
             commandBuffers[i].begin(beginInfo);
 
-            // Добавление барьера перед очисткой
-            commandBuffers[i].pipelineBarrier(
-                vk::PipelineStageFlagBits::eTopOfPipe,
-                vk::PipelineStageFlagBits::eTransfer,
-                vk::DependencyFlags(),
-                nullptr, nullptr, // Барьеры памяти не нужны
-                presentToClearBarrier
-            );
+            beginInfo.setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse);
 
-            // Очистка изображения
-            commandBuffers[i].clearColorImage(core->GetImage(i), vk::ImageLayout::eTransferDstOptimal, &colorValue, 1, &imageRange);
-
-            // Добавление барьера после очистки, чтобы подготовить изображение для отображения
-            commandBuffers[i].pipelineBarrier(
-                vk::PipelineStageFlagBits::eTransfer,
-                vk::PipelineStageFlagBits::eBottomOfPipe,
-                vk::DependencyFlags(),
-                nullptr, nullptr, // Барьеры памяти не нужны
-                clearToPresentBarrier
-            );
+            renderPassBeginInfo.setFramebuffer(frameBuffers[i]);
+            
+            commandBuffers[i].beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
+            commandBuffers[i].endRenderPass();
 
             // Завершение командного буфера
             commandBuffers[i].end();

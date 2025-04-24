@@ -26,9 +26,12 @@ namespace xe_core {
         vk::Image GetImage(unsigned int index) const;
         void CreateCommandBuffers(unsigned int numImages, std::vector<vk::CommandBuffer> &buffers);
         std::shared_ptr<Queue> GetQueue();
+        vk::RenderPass CreateDefaultRenderPass();
+        void DestroyRenderPass(const vk::RenderPass& renderPass) const;
+        std::vector<vk::Framebuffer> CreateFrameBuffers(const vk::RenderPass &renderPass);
 
     private:
-        void Init(std::shared_ptr<xe::Window> window);
+        void Init(std::shared_ptr<xe::Window> win);
         void CreateInstance();
         std::vector<const char*> GetExtensions() const;
         void CreateSurface(std::shared_ptr<xe::Window> window);
@@ -49,5 +52,8 @@ namespace xe_core {
         std::vector<vk::ImageView> imageViews{};
         vk::UniqueCommandPool commandPool;
         std::shared_ptr<Queue> queue;
+        vk::SurfaceFormatKHR surfaceFormat{};
+        std::vector<vk::Framebuffer> frameBuffers{};
+        std::shared_ptr<xe::Window> window;
     };
 }
